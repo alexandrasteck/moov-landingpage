@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MOOV | Find deinen MOOV</title>
+    <style>
+      :root {
+        --ink: #161616;
+        --paper: #fff;
+        --grey: #f3f3f3;
+        --line: #d8d8d8;
+        --yellow: #ffb503;
+        --soft: #fff0cc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font:
+          400 1.0625rem/1.55 "Helvetica Neue",
+          Helvetica,
+          Arial,
+          sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+      }
+      h1,
+      h2 {
+        margin: 0;
+        font-weight: 900;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(2.4rem, 9vw, 5.25rem);
+      }
+      h2 {
+        font-size: clamp(1.9rem, 6vw, 3.25rem);
+      }
+      p {
+        margin: 0;
+      }
+      .mark {
+        background: linear-gradient(to right, #ffb503, rgba(255, 181, 3, 0)) 0
+          0.84em/100% 0.4em no-repeat;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      section {
+        padding: clamp(3rem, 9vw, 6rem) 1.25rem;
+      }
+      .lead {
+        margin-top: 1.25rem;
+        font-size: 1.25rem;
+        max-width: 34ch;
+      }
+
+      /* Hero mit Headerbild: header.png muss im selben Ordner wie index.html liegen */
+      .hero {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        align-items: flex-end;
+        min-height: clamp(420px, 45vw, 620px);
+        padding-inline: clamp(1.25rem, 6vw, 6rem);
+        color: #fff;
+        background: #2f5f8f url("header.png") center / cover no-repeat;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: rgba(
+          0,
+          0,
+          0,
+          0.3
+        ); /* Abdunklung für gut lesbare weisse Schrift */
+      }
+      .hero .wrap {
+        max-width: none;
+        width: 100%;
+        margin: 0;
+      }
+      .hero .btn:focus-visible {
+        outline-color: #fff;
+      }
+      .hero .mark {
+        white-space: nowrap; /* "WAS JETZT?" bleibt zusammen */
+      }
+
+      /* Header-Platzhalter (bestehenden MOOV-Header hier einsetzen) */
+      .site-header {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        height: 64px;
+        padding: 0 0.5rem;
+        border-bottom: 1px solid var(--line);
+      }
+      .site-header .right {
+        justify-self: end;
+        display: flex;
+      }
+      .logo {
+        font-weight: 900;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+      }
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        background: none;
+        border: 0;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .icon-btn svg {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 2rem;
+        min-height: 48px;
+        padding: 0.9rem 1.8rem;
+        background: var(--ink);
+        color: #fff;
+        border: 0;
+        border-radius: 0;
+        font-family: inherit;
+        font-weight: 800;
+        font-size: 1rem;
+        line-height: 1.2;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: #000;
+      }
+      :focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+      .btn:focus-visible {
+        outline-color: #1a5cff;
+      }
+
+      /* Wissenscheck */
+      .quiz,
+      .done {
+        background: var(--grey);
+      }
+      .card {
+        background: #fff;
+        border: 2px solid var(--ink);
+        border-radius: 20px;
+        padding: clamp(1.25rem, 4vw, 2.5rem);
+        scroll-margin-top: 1rem;
+      }
+      .progress-text {
+        font-weight: 700;
+        font-size: 0.95rem;
+      }
+      .bar {
+        height: 6px;
+        margin-top: 0.5rem;
+        background: var(--line);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .bar div {
+        height: 100%;
+        width: 0;
+        background: var(--ink);
+        transition: width 0.4s;
+      }
+      #question {
+        margin-top: 1.75rem;
+        font-size: clamp(1.6rem, 5vw, 2.4rem);
+      }
+      #question:focus {
+        outline: none;
+      }
+      .options {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+      .option {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        width: 100%;
+        min-height: 56px;
+        padding: 0.9rem 1.1rem;
+        background: #fff;
+        border: 2px solid var(--line);
+        border-radius: 14px;
+        font: inherit;
+        text-align: left;
+        color: inherit;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .option:hover {
+        border-color: var(--ink);
+      }
+      .option .key {
+        flex: none;
+        width: 2rem;
+        height: 2rem;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--grey);
+        font-weight: 800;
+        font-size: 0.9rem;
+      }
+      .option.is-locked {
+        cursor: default;
+      }
+      .option.is-locked:not(.is-selected) {
+        opacity: 0.55;
+      }
+      .option.is-locked:not(.is-selected):hover {
+        border-color: var(--line);
+      }
+      .option.is-selected {
+        border-color: var(--ink);
+        background: var(--soft);
+      }
+      .option.is-selected .key {
+        background: var(--yellow);
+      }
+      .reaction {
+        margin-top: 1.5rem;
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.25;
+        animation: fade 0.35s both;
+      }
+      .explain {
+        margin-top: 1rem;
+        padding: 1.1rem 1.25rem;
+        background: var(--grey);
+        border-radius: 14px;
+        display: grid;
+        gap: 0.75rem;
+        animation: fade 0.35s 0.25s both;
+      }
+      .next {
+        animation: fade 0.35s 0.5s both;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      h2[tabindex]:focus {
+        outline: none;
+      }
+      .video {
+        border-top: 1px solid var(--line);
+      }
+      .video .wrap {
+        max-width: 960px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: center;
+      }
+      .moovi {
+        display: block;
+        width: clamp(150px, 26vw, 280px);
+        height: auto;
+      }
+      @media (max-width: 600px) {
+        .video .wrap {
+          grid-template-columns: 1fr;
+        }
+        .moovi {
+          justify-self: end;
+          width: 200px;
+        }
+      }
+      /* Event-Teaser SwissCityMarathon (kompakt, mittig, immer sichtbar) */
+      .event {
+        background: var(--grey);
+        border-top: 1px solid var(--line);
+        text-align: center;
+        padding-block: clamp(2.5rem, 7vw, 4.5rem);
+      }
+      .event h2 {
+        font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      }
+      .event .lead {
+        margin-inline: auto;
+        font-size: 1.125rem;
+        text-wrap: balance; /* verhindert ein einzelnes Wort in der letzten Zeile */
+      }
+      .site-footer {
+        padding: 2rem 1.25rem;
+        border-top: 1px solid var(--line);
+        background: #fff;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- A. Header: Platzhalter. Auf der echten Website den bestehenden Header verwenden. -->
+    <header class="site-header">
+      <button class="icon-btn" type="button" aria-label="Menü">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+      </button>
+      <div class="logo">MOOV</div>
+      <div class="right">
+        <button class="icon-btn" type="button" aria-label="Account">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c1-4 4-6 8-6s7 2 8 6" />
+          </svg>
+        </button>
+        <button class="icon-btn" type="button" aria-label="Warenkorb">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 8h14l-1 12H6L5 8z" />
+            <path d="M9 8a3 3 0 0 1 6 0" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- B. Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="wrap">
+          <h1 id="hero-title">
+            VIEL GESCHWITZT. <span class="mark">WAS JETZT?</span>
+          </h1>
+          <p class="lead">
+            Schwitzen kannst du. Aber weisst du auch, was du dabei verlierst?
+          </p>
+          <button class="btn" type="button" id="start-btn">
+            WISSENSCHECK STARTEN
+          </button>
+        </div>
+      </section>
+
+      <!-- C. Wissenscheck (erst nach Klick auf den Start-Button sichtbar) -->
+      <section class="quiz" id="wissenscheck" aria-label="Wissenscheck" hidden>
+        <div class="wrap">
+          <div class="card" id="quiz-card">
+            <p class="progress-text" id="progress-text"></p>
+            <div class="bar" aria-hidden="true"><div id="bar-fill"></div></div>
+            <h2 id="question" tabindex="-1"></h2>
+            <div
+              class="options"
+              id="options"
+              role="group"
+              aria-labelledby="question"
+            ></div>
+            <div id="feedback" aria-live="polite"></div>
+            <button
+              class="btn next"
+              type="button"
+              id="next-btn"
+              hidden
+            ></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- D. Abschluss (erst nach Abschluss aller fünf Fragen sichtbar) -->
+      <section class="done" id="abschluss" aria-labelledby="done-title" hidden>
+        <div class="wrap">
+          <h2 id="done-title" tabindex="-1">
+            Genug Theorie. Jetzt geht’s um <span class="mark">dich.</span>
+          </h2>
+          <p class="lead">
+            Weisst du eigentlich, wie viel du beim Training schwitzt?
+          </p>
+          <a class="btn" id="calc-link" href="#" target="_blank" rel="noopener"
+            >MEINEN SCHWEISS CHECKEN</a
+          >
+        </div>
+      </section>
+
+      <!-- E. Videobereich (immer sichtbar, unabhängig vom Wissenscheck) -->
+      <section class="video" id="videos" aria-labelledby="video-title">
+        <div class="wrap">
+          <div>
+            <h2 id="video-title">
+              MOOVI HAT NOCH <span class="mark">FRAGEN.</span>
+            </h2>
+            <p class="lead">Du auch? Wir bringen Licht ins Schwitzen.</p>
+            <a
+              class="btn"
+              id="video-link"
+              href="https://www.instagram.com/moov.hydrate/"
+              target="_blank"
+              rel="noopener"
+              >VIDEOS ANSCHAUEN</a
+            >
+          </div>
+          <!-- Moovi-Illustration (eingebettet, 720x960). Für die echte Website durch die gehostete Bild-URL ersetzen. -->
+          <img class="moovi" width="720" height="960" alt="" src="moovi.png" />
+        </div>
+      </section>
+
+      <!-- G. Event-Teaser SwissCityMarathon 2027 (immer sichtbar, unabhängig vom Wissenscheck) -->
+      <section class="event" id="event" aria-labelledby="event-title">
+        <div class="wrap">
+          <h2 id="event-title">
+            MOOV GEHT AN DEN <span class="mark">START.</span>
+          </h2>
+          <p class="lead">
+            Wissen testen. Blind probieren. Mitentscheiden, was Moovi als
+            Nächstes macht.
+          </p>
+          <a
+            class="btn"
+            id="event-link"
+            href="https://www.swisscitymarathon.ch/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >MEHR ZUM EVENT</a
+          >
+        </div>
+      </section>
+    </main>
+
+    <!-- F. Footer: Platzhalter. Auf der echten Website den bestehenden Footer verwenden. -->
+    <footer class="site-footer">
+      <p>Platzhalter: bestehender MOOV-Footer</p>
+    </footer>
+
+    <script>
+      /* ============ KONFIGURATION: Linkziele hier eintragen ============ */
+      const CONFIG = {
+        // Schweiss-Rechner auf moov-sports.com. Auf der Startseite wurde kein Anker gefunden,
+        // daher vorläufig die Startseite. TODO: Falls vorhanden, Anker ergänzen (z. B. '…/#ELEMENT-ID').
+        sweatCalculatorUrl: "https://moov-sports.com/",
+        // Videos der Kampagne. TODO: Zieladresse noch zu ergänzen (bewusst leer, nichts erfunden).
+        videoUrl: "",
+      };
+
+      /* ============ INHALT: alle Quiztexte zentral ============ */
+      const QUIZ = [
+        {
+          id: 1,
+          question: "Was verlierst du beim Schwitzen?",
+          options: {
+            A: "Nur Wasser",
+            B: "Wasser und Elektrolyte",
+            C: "Hauptsächlich Salz",
+          },
+          reactions: {
+            A: "Nicht nur. Da steckt mehr drin.",
+            B: "Treffer. Mehr als nur Wasser.",
+            C: "Salz gehört dazu. Aber Wasser macht den Grossteil aus.",
+          },
+          explanation: [
+            "Schweiss besteht hauptsächlich aus Wasser. Dabei verliert dein Körper auch Elektrolyte wie Natrium und Chlorid. Diese sind wichtig für den Flüssigkeitshaushalt sowie die Funktion von Nerven und Muskeln.",
+            "Je mehr du schwitzt, desto mehr Flüssigkeit und Elektrolyte verlierst du in der Regel. Wie viel das tatsächlich ist, hängt von deinem Körper und den Trainingsbedingungen ab.",
+          ],
+          correctAnswer: "B",
+        },
+        {
+          id: 2,
+          question: "Elektrolyte = Energie?",
+          options: {
+            A: "Ja, sie liefern Kalorien.",
+            B: "Nein, sie erfüllen andere Aufgaben.",
+            C: "Nur bei intensivem Sport.",
+          },
+          reactions: {
+            A: "Schön wär’s. Aber nein.",
+            B: "Treffer. Mineralstoffe sind keine Energielieferanten.",
+            C: "Auch bei Vollgas nicht.",
+          },
+          explanation: [
+            "Elektrolyte wie Natrium und Kalium sind Mineralstoffe. Sie unterstützen wichtige Körperfunktionen, liefern aber selbst keine Energie.",
+            "Die kommt unter anderem aus Kohlenhydraten und Fetten. Ein Sportgetränk kann beides enthalten: Elektrolyte und energieliefernden Zucker. Muss es aber nicht.",
+          ],
+          correctAnswer: "B",
+        },
+        {
+          id: 3,
+          question: "Elektrolyte. Wann lohnt sich das Extra?",
+          options: {
+            A: "Nach jedem Training",
+            B: "Bei langer Belastung und starkem Schwitzen",
+            C: "Sobald du Durst hast",
+          },
+          reactions: {
+            A: "Nicht jede Session braucht Extras.",
+            B: "Treffer. Auf den Verlust kommt’s an.",
+            C: "Durst allein entscheidet das nicht.",
+          },
+          explanation: [
+            "Bei kurzen, moderaten Trainingseinheiten reicht Wasser normalerweise aus. Trainierst du lange oder schwitzt besonders viel, kann es sinnvoll sein, auch Elektrolyte zu ersetzen – vor allem Natrium.",
+            "Ob du zusätzliche Elektrolyte brauchst, hängt von deinem Schweissverlust, der Belastung und den Bedingungen ab. Elektrolyte kannst du auch über die Nahrung aufnehmen.",
+          ],
+          correctAnswer: "B",
+        },
+        {
+          id: 4,
+          question: "Gleiches Training. Gleich viel Schweiss?",
+          options: {
+            A: "Ja, bei gleicher Trainingsdauer.",
+            B: "Nein, jeder schwitzt unterschiedlich.",
+            C: "Nur bei gleichem Fitnesslevel.",
+          },
+          reactions: {
+            A: "Gleiche Zeit. Nicht gleicher Schweiss.",
+            B: "Treffer. Dein Körper, deine Regeln.",
+            C: "Fitness spielt mit. Ist aber nicht alles.",
+          },
+          explanation: [
+            "Wie viel du schwitzt, hängt von verschiedenen Faktoren ab: Trainingsintensität, Temperatur, Kleidung und individuellen körperlichen Eigenschaften. Auch die Gewöhnung an Hitze kann eine Rolle spielen.",
+            "Zwei Menschen können deshalb beim gleichen Training unterschiedlich viel Flüssigkeit verlieren. Starkes Schwitzen bedeutet nicht automatisch schlechte Fitness.",
+          ],
+          correctAnswer: "B",
+        },
+        {
+          id: 5,
+          question: "Training durch. Was jetzt?",
+          options: {
+            A: "Hauptsache genug trinken.",
+            B: "Trinken, essen und erholen.",
+            C: "Vor allem Elektrolyte auffüllen.",
+          },
+          reactions: {
+            A: "Guter Anfang. Aber da fehlt noch was.",
+            B: "Treffer. Pause gehört zum Plan.",
+            C: "Elektrolyte allein regeln das nicht.",
+          },
+          explanation: [
+            "Nach dem Training braucht dein Körper Zeit zur Erholung. Dazu gehören ausreichend Flüssigkeit, passende Ernährung und genügend Schlaf.",
+            "Je nach Belastung helfen Kohlenhydrate, deine Energiespeicher aufzufüllen, und Proteine unterstützen die Muskelregeneration. Bei grossen Schweissverlusten kann auch der Ersatz von Elektrolyten wichtig sein.",
+          ],
+          correctAnswer: "B", // nur interne Zuordnung, es gibt keinen Score und keine Bewertung
+        },
+      ];
+
+      /* ============ ZENTRALER ZUSTAND ============ */
+      const state = {
+        started: false,
+        current: 0,
+        selected: null,
+        answered: false,
+        completed: false,
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const el = (tag, cls, text) => {
+        const e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text) e.textContent = text;
+        return e;
+      };
+      const isLast = () => state.current === QUIZ.length - 1;
+
+      function syncVisibility() {
+        $("wissenscheck").hidden = !state.started || state.completed;
+        $("abschluss").hidden = !state.completed;
+      }
+
+      function setBar() {
+        const done = state.current + (state.answered ? 1 : 0);
+        $("bar-fill").style.width = (done / QUIZ.length) * 100 + "%";
+      }
+
+      /* Zeigt die aktuelle Frage im Zustand «noch nicht beantwortet» */
+      function renderQuestion() {
+        const q = QUIZ[state.current];
+        $("progress-text").textContent =
+          "Frage " + (state.current + 1) + " von " + QUIZ.length;
+        $("question").textContent = q.question;
+        setBar();
+        $("options").replaceChildren(
+          ...Object.entries(q.options).map(([key, text]) => {
+            const b = el("button", "option");
+            b.type = "button";
+            b.dataset.key = key;
+            b.setAttribute("aria-pressed", "false");
+            const k = el("span", "key", key);
+            k.setAttribute("aria-hidden", "true");
+            b.append(k, el("span", null, text));
+            b.addEventListener("click", () => choose(key));
+            return b;
+          }),
+        );
+        $("feedback").replaceChildren();
+        $("next-btn").hidden = true;
+      }
+
+      /* Antwort wählen: hervorheben, sperren, Reaktion + Erklärung + Weiter-Button einblenden */
+      function choose(key) {
+        if (state.answered) return;
+        state.selected = key;
+        state.answered = true;
+        const q = QUIZ[state.current];
+        $("options")
+          .querySelectorAll(".option")
+          .forEach((b) => {
+            const on = b.dataset.key === key;
+            b.setAttribute("aria-pressed", String(on));
+            b.setAttribute("aria-disabled", "true");
+            b.classList.add("is-locked");
+            b.classList.toggle("is-selected", on);
+          });
+        $("feedback").replaceChildren(
+          el("p", "reaction", q.reactions[key]),
+          (() => {
+            const d = el("div", "explain");
+            q.explanation.forEach((t) => d.append(el("p", null, t)));
+            return d;
+          })(),
+        );
+        const next = $("next-btn");
+        next.textContent = isLast()
+          ? "WISSENSCHECK ABSCHLIESSEN"
+          : "NÄCHSTE FRAGE";
+        next.hidden = false;
+        setBar();
+      }
+
+      function focusQuestion() {
+        $("question").focus({ preventScroll: true });
+        $("quiz-card").scrollIntoView({ block: "start" });
+      }
+
+      function start() {
+        if (!state.started || state.completed) {
+          Object.assign(state, {
+            started: true,
+            current: 0,
+            selected: null,
+            answered: false,
+            completed: false,
+          });
+          renderQuestion();
+        }
+        syncVisibility();
+        focusQuestion();
+      }
+
+      function next() {
+        if (!state.answered) return;
+        if (isLast()) {
+          state.completed = true;
+          syncVisibility();
+          $("done-title").focus({ preventScroll: true });
+          $("abschluss").scrollIntoView({ block: "start" });
+        } else {
+          state.current++;
+          state.selected = null;
+          state.answered = false;
+          renderQuestion();
+          focusQuestion();
+        }
+      }
+
+      $("start-btn").addEventListener("click", start);
+      $("next-btn").addEventListener("click", next);
+
+      /* Linkziele setzen: CONFIG hat Vorrang. Ist dort nichts eingetragen, gilt ein direkt im HTML gesetztes href. */
+      function wireLink(a, configUrl) {
+        const own = a.getAttribute("href");
+        const url = configUrl || (own && own !== "#" ? own : "");
+        if (url) {
+          a.href = url;
+        } else {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            console.warn(
+              "Linkziel fehlt: URL in CONFIG eintragen (" + a.id + ").",
+            );
+          });
+        }
+      }
+      wireLink($("calc-link"), CONFIG.sweatCalculatorUrl);
+      wireLink($("video-link"), CONFIG.videoUrl);
+    </script>
+  </body>
+</html>
